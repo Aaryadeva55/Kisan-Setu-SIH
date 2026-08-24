@@ -2,7 +2,7 @@
 
 > **Closing the Loop:** An end-to-end Agricultural Market-Linkage Platform connecting Farmers with Buyers & FPOs via WhatsApp and Web Portals, powered by explainable agronomic recommendations and weighted multi-factor matching.
 
-[![CI](https://github.com/Arshal-16/Kisan-Setu/actions/workflows/ci.yml/badge.svg)](https://github.com/Arshal-16/Kisan-Setu/actions/workflows/ci.yml)
+[![CI](https://github.com/Arshal-16/Kisan-Setu-SIH/actions/workflows/ci.yml/badge.svg)](https://github.com/Arshal-16/Kisan-Setu-SIH/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev)
@@ -52,8 +52,8 @@
 ### 2. Setup Environment
 ```bash
 # Clone the repository
-git clone https://github.com/Arshal-16/Kisan-Setu.git
-cd Kisan-Setu
+git clone https://github.com/Arshal-16/Kisan-Setu-SIH.git
+cd Kisan-Setu-SIH
 
 # Install all workspace dependencies
 npm install
