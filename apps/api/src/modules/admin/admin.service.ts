@@ -166,7 +166,7 @@ export class AdminService {
     }
 
     const queueStatuses = [];
-    for (const [key, name] of Object.entries(QUEUE_NAMES)) {
+    for (const name of Object.values(QUEUE_NAMES)) {
       try {
         const q: any = getQueue(name);
         const [waiting, active, failed, completed] = await Promise.all([

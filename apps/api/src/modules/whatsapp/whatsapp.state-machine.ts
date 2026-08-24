@@ -1,4 +1,4 @@
-import { Language, Role } from '@kisan-setu/types';
+import { Language } from '@kisan-setu/types';
 import { prisma } from '../../infra/prisma.js';
 import { t, translateCropName } from '../../locales/agriDict.js';
 import { recommendationService } from '../recommendation/recommendation.service.js';

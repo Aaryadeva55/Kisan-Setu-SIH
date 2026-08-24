@@ -1,6 +1,5 @@
 import { marketRepository } from './market.repository.js';
 import { getRedisClient } from '../../infra/redis.js';
-import { NotFoundError } from '../../shared/errors/AppError.js';
 
 export class MarketService {
   async getLatestPrice(cropId: string, districtId?: string, mandiId?: string) {

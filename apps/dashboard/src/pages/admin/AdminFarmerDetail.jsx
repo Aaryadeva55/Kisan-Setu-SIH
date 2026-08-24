@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useFarmerDetail, useFarmerAdvisories, useFarmerSellIntents } from '../../hooks/useFarmers';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { formatCurrency, formatQuantity, formatDate } from '../../lib/utils';

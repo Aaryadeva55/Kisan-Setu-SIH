@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { whatsappService } from './whatsapp.service.js';
-import { whatsappClient } from '../../integrations/whatsapp/whatsapp.client.js';
 import { config } from '../../config/env.js';
 import { logger } from '../../shared/logger/pino.js';
 
@@ -18,9 +17,9 @@ export class WhatsAppController {
     return res.status(403).send('Forbidden: invalid verification token');
   }
 
-  async handleWebhook(req: Request, res: Response, next: NextFunction) {
+  async handleWebhook(req: Request, res: Response, _next: NextFunction) {
     try {
-      const signature = req.headers['x-hub-signature-256'] as string | undefined;
+      const _signature = req.headers['x-hub-signature-256'] as string | undefined;
 
       // Meta payload parsing
       const entry = req.body?.entry?.[0];
