@@ -43,7 +43,7 @@ export function createApp(): Express {
   app.use(helmet());
 
   // CORS
-  const allowedOrigins = config.CORS_ALLOWED_ORIGIN.split(',').map((o) => o.trim());
+  const allowedOrigins = config.CORS_ALLOWED_ORIGIN.split(',').map((o: string) => o.trim());
   app.use(
     cors({
       origin: (origin, callback) => {
