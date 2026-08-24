@@ -4,8 +4,12 @@
   "private": true,
   "description": "Kisan Setu - Agricultural Market Linkage Platform",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "packages/types",
+    "packages/config",
+    "packages/shared",
+    "apps/api",
+    "apps/worker",
+    "apps/dashboard"
   ],
   "scripts": {
     "dev": "concurrently -n \"api,dashboard\" -c \"cyan,magenta\" \"npm run dev:api\" \"npm run dev:dashboard\"",
@@ -13,10 +17,12 @@
     "dev:api": "npm run dev --workspace apps/api",
     "dev:worker": "npm run dev --workspace apps/worker",
     "dev:dashboard": "npm run dev --workspace apps/dashboard",
-    "build": "npm run build --workspaces --if-present",
+    "build:packages": "npm run build --workspace @kisan-setu/types && npm run build --workspace @kisan-setu/config && npm run build --workspace @kisan-setu/shared",
+    "build:apps": "npm run build --workspace @kisan-setu/api && npm run build --workspace @kisan-setu/worker && npm run build --workspace @kisan-setu/dashboard",
+    "build": "npm run build:packages && npm run build:apps",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run build --workspaces --if-present && npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build:packages && npm run typecheck --workspaces --if-present",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
