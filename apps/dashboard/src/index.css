@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Agriculture Deep Green */
+    --primary: 154 57% 28%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 154 58% 22%;
+
+    /* Warm Harvest Gold */
+    --secondary: 45 68% 47%;
+    --secondary-foreground: 0 0% 10%;
+
+    /* Sky / Water Blue Accent */
+    --accent: 203 58% 43%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Backgrounds & Surfaces */
+    --background: 100 14% 97%;
+    --foreground: 153 22% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 153 22% 12%;
+
+    --surface: 0 0% 100%;
+    --surface-muted: 96 15% 94%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 153 22% 12%;
+
+    --muted: 96 15% 94%;
+    --muted-foreground: 145 8% 39%;
+
+    --border: 105 13% 89%;
+    --input: 105 13% 85%;
+    --ring: 154 57% 28%;
+
+    /* Status Colors */
+    --success: 154 57% 28%;
+    --warning: 45 68% 47%;
+    --error: 6 63% 46%;
+    --destructive: 6 63% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 203 58% 43%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom Scrollbar for sleek institutional feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--surface-muted));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

@@ -1,0 +1,15 @@
+{
+  "welcome": "किसान सेतु में आपका स्वागत है! मैं आपका कृषि सलाहकार और बाजार सहायक हूँ।",
+  "select_language": "कृपया अपनी भाषा चुनें:",
+  "select_district": "कृपया अपना जिला चुनें:",
+  "main_menu": "मुख्य मेनू:\n1. फसल सलाह (Advisory)\n2. बाजार भाव (Market Prices)\n3. खरीदार खोजें / बिक्री इरादा (Sell Intent)\n4. मेरी लेनदेन स्थिति (Transaction Status)",
+  "advisory_intro": "आपके जिले और मौसम के लिए सर्वश्रेष्ठ फसल सिफारिशें:",
+  "price_intro": "आपकी निकटतम मंडी के आज के भाव:",
+  "sell_intent_prompt": "आप कौन सी फसल और कितनी मात्रा (किलो) में बेचना चाहते हैं?",
+  "match_found": "🎉 आपकी फसल के लिए खरीदार मिला है!\nखरीदार: {buyerName}\nफसल: {cropName}\nमात्रा: {quantity} किलो\nमूल्य: ₹{price}/क्विंटल\nमैच स्कोर: {score}%",
+  "match_explanation": "मैच का कारण: {reason}",
+  "transaction_created": "आपका लेन-देन अनुरोध सफलतापूर्वक दर्ज कर लिया गया है।",
+  "transaction_accepted": "✅ बधाई! खरीदार {buyerName} ने {quantity} किलो {cropName} का आपका अनुरोध स्वीकार कर लिया है।",
+  "transaction_rejected": "खरीदार ने अनुरोध अस्वीकार कर दिया है। हम अन्य खरीदार खोज रहे हैं।",
+  "status_help": "सहायता के लिए 'help' या स्थिति जानने के लिए 'status' भेजें।"
+}

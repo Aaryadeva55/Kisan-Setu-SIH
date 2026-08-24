@@ -1,0 +1,352 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  FARMER
+  BUYER
+  FPO
+  ADMIN
+  GOVERNMENT_EVALUATOR
+}
+
+enum Language {
+  MARATHI
+  HINDI
+  ENGLISH
+}
+
+enum TransactionStatus {
+  REQUESTED
+  MATCHED
+  PENDING_BUYER
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique
+  email         String?   @unique
+  passwordHash  String?
+  role          Role
+  preferredLang Language  @default(MARATHI)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  farmerProfile FarmerProfile?
+  buyer         Buyer?
+  fpo           FPO?
+  conversations Conversation[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role])
+}
+
+model District {
+  id        String          @id @default(cuid())
+  name      String
+  state     String          @default("Maharashtra")
+  farmers   FarmerProfile[]
+  mandis    Mandi[]
+  weather   WeatherData[]
+
+  @@unique([name, state])
+}
+
+model FarmerProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName      String?
+  districtId    String
+  district      District  @relation(fields: [districtId], references: [id])
+  taluka        String?
+  village       String?
+  latitude      Float?
+  longitude     Float?
+  landSizeAcres Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  fpoMemberships FPOMembership[]
+  advisories     Advisory[]
+  sellIntents    SellIntent[]
+
+  @@index([districtId])
+}
+
+model FPO {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  regNumber String?  @unique
+  createdAt DateTime @default(now())
+
+  memberships FPOMembership[]
+}
+
+model FPOMembership {
+  id          String        @id @default(cuid())
+  fpoId       String
+  fpo         FPO           @relation(fields: [fpoId], references: [id], onDelete: Cascade)
+  farmerId    String
+  farmer      FarmerProfile @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime      @default(now())
+
+  @@unique([fpoId, farmerId])
+}
+
+model Buyer {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName String
+  buyerType   String
+  createdAt   DateTime @default(now())
+
+  requirements BuyerRequirement[]
+}
+
+model Crop {
+  id           String             @id @default(cuid())
+  name         String             @unique
+  category     String?
+  waterReq     String?
+  seasons      CropSeason[]
+  advisories   Advisory[]
+  prices       MandiPrice[]
+  sellIntents  SellIntent[]
+  requirements BuyerRequirement[]
+}
+
+model CropSeason {
+  id           String  @id @default(cuid())
+  cropId       String
+  crop         Crop    @relation(fields: [cropId], references: [id], onDelete: Cascade)
+  season       String
+  sowStart     Int
+  sowEnd       Int
+  harvestStart Int
+  harvestEnd   Int
+
+  @@unique([cropId, season])
+}
+
+model Mandi {
+  id         String   @id @default(cuid())
+  name       String
+  districtId String
+  district   District @relation(fields: [districtId], references: [id])
+  latitude   Float?
+  longitude  Float?
+
+  prices MandiPrice[]
+
+  @@index([districtId])
+}
+
+model MandiPrice {
+  id         String   @id @default(cuid())
+  mandiId    String
+  mandi      Mandi    @relation(fields: [mandiId], references: [id])
+  cropId     String
+  crop       Crop     @relation(fields: [cropId], references: [id])
+  minPrice   Float
+  maxPrice   Float
+  modalPrice Float
+  priceDate  DateTime
+  sourceRef  String?
+  createdAt  DateTime @default(now())
+
+  @@unique([mandiId, cropId, priceDate])
+  @@index([cropId, priceDate])
+}
+
+model WeatherData {
+  id         String   @id @default(cuid())
+  districtId String
+  district   District @relation(fields: [districtId], references: [id])
+  date       DateTime
+  tempMinC   Float?
+  tempMaxC   Float?
+  rainfallMm Float?
+  humidity   Float?
+  forecast   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([districtId, date, forecast])
+  @@index([districtId, date])
+}
+
+model Advisory {
+  id               String        @id @default(cuid())
+  farmerId         String
+  farmer           FarmerProfile @relation(fields: [farmerId], references: [id])
+  cropId           String
+  crop             Crop          @relation(fields: [cropId], references: [id])
+  suitabilityScore Float
+  reason           String        @db.Text
+  ruleTrace        Json
+  createdAt        DateTime      @default(now())
+
+  @@index([farmerId, createdAt])
+}
+
+model SellIntent {
+  id            String        @id @default(cuid())
+  farmerId      String
+  farmer        FarmerProfile @relation(fields: [farmerId], references: [id])
+  cropId        String
+  crop          Crop          @relation(fields: [cropId], references: [id])
+  quantityKg    Float
+  expectedPrice Float?
+  harvestDate   DateTime?
+  status        String        @default("OPEN")
+  createdAt     DateTime      @default(now())
+
+  matches Match[]
+
+  @@index([status, cropId])
+}
+
+model BuyerRequirement {
+  id         String    @id @default(cuid())
+  buyerId    String
+  buyer      Buyer     @relation(fields: [buyerId], references: [id])
+  cropId     String
+  crop       Crop      @relation(fields: [cropId], references: [id])
+  quantityKg Float
+  maxPrice   Float?
+  minQuality String?
+  districtId String?
+  radiusKm   Float?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+
+  matches Match[]
+
+  @@index([cropId, isActive])
+}
+
+model Match {
+  id                 String           @id @default(cuid())
+  sellIntentId       String
+  sellIntent         SellIntent       @relation(fields: [sellIntentId], references: [id])
+  buyerRequirementId String
+  buyerRequirement   BuyerRequirement @relation(fields: [buyerRequirementId], references: [id])
+  score              Float
+  scoreBreakdown     Json
+  createdAt          DateTime         @default(now())
+
+  transaction Transaction?
+
+  @@unique([sellIntentId, buyerRequirementId])
+  @@index([score])
+}
+
+model Transaction {
+  id          String            @id @default(cuid())
+  matchId     String            @unique
+  match       Match             @relation(fields: [matchId], references: [id])
+  status      TransactionStatus @default(REQUESTED)
+  quantityKg  Float
+  agreedPrice Float?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+
+  history TransactionStatusHistory[]
+
+  @@index([status])
+}
+
+model TransactionStatusHistory {
+  id            String             @id @default(cuid())
+  transactionId String
+  transaction   Transaction        @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  fromStatus    TransactionStatus?
+  toStatus      TransactionStatus
+  changedBy     String?
+  note          String?
+  createdAt     DateTime           @default(now())
+
+  @@index([transactionId, createdAt])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  channel   String
+  state     String
+  context   Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  messages Message[]
+
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      String
+  externalMsgId  String?      @unique
+  content        String       @db.Text
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  channel   String
+  title     String
+  body      String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  @@index([userId, status])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}
+
+model DataIngestionJob {
+  id         String    @id @default(cuid())
+  jobType    String
+  status     String
+  recordsIn  Int       @default(0)
+  recordsOk  Int       @default(0)
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+}

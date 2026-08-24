@@ -1,0 +1,15 @@
+{
+  "welcome": "Welcome to Kisan Setu! I am your agricultural advisor and market linkage assistant.",
+  "select_language": "Please choose your preferred language:",
+  "select_district": "Please choose your district:",
+  "main_menu": "Main Menu:\n1. Crop Advisory\n2. Mandi Prices\n3. Match with Buyers (Sell Intent)\n4. My Transactions",
+  "advisory_intro": "Recommended crops based on your district rainfall and market trends:",
+  "price_intro": "Today's modal prices in your nearest mandis:",
+  "sell_intent_prompt": "Which crop and what quantity (kg) would you like to sell?",
+  "match_found": "🎉 Buyer Match Found!\nBuyer: {buyerName}\nCrop: {cropName}\nQuantity: {quantity} kg\nExpected Price: ₹{price}/quintal\nMatch Score: {score}%",
+  "match_explanation": "Match Reasoning: {reason}",
+  "transaction_created": "Your transaction request has been recorded. You will be notified once the buyer responds.",
+  "transaction_accepted": "✅ Great news! Buyer {buyerName} accepted your transaction for {quantity} kg {cropName}.",
+  "transaction_rejected": "The buyer declined this request. We are looking for alternative buyer matches.",
+  "status_help": "Send 'help' for guidance or 'status' to check active transactions."
+}

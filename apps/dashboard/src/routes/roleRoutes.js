@@ -1,0 +1,58 @@
+import {
+  LayoutDashboard,
+  Users,
+  Building2,
+  Sprout,
+  TrendingUp,
+  CloudSun,
+  Sparkles,
+  ReceiptText,
+  BarChart3,
+  Activity,
+  Layers,
+  ShoppingBag,
+  Inbox,
+  User,
+} from 'lucide-react';
+import { ROLES } from '../constants/roles';
+
+export const NAV_CONFIG_BY_ROLE = {
+  [ROLES.ADMIN]: [
+    { label: 'Overview', path: '/admin/overview', icon: LayoutDashboard },
+    { label: 'Farmers', path: '/admin/farmers', icon: Users },
+    { label: 'Buyers', path: '/admin/buyers', icon: Building2 },
+    { label: 'FPOs', path: '/admin/fpos', icon: Layers },
+    { label: 'Crops & Seasons', path: '/admin/crops', icon: Sprout },
+    { label: 'Market Prices', path: '/admin/market-prices', icon: TrendingUp },
+    { label: 'Weather Intel', path: '/admin/weather', icon: CloudSun },
+    { label: 'Advisories', path: '/admin/recommendations', icon: Sparkles },
+    { label: 'Transactions', path: '/admin/transactions', icon: ReceiptText },
+    { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    { label: 'System Health', path: '/admin/system-health', icon: Activity },
+  ],
+  [ROLES.GOVERNMENT_EVALUATOR]: [
+    { label: 'Overview', path: '/admin/overview', icon: LayoutDashboard },
+    { label: 'Farmers', path: '/admin/farmers', icon: Users },
+    { label: 'Buyers', path: '/admin/buyers', icon: Building2 },
+    { label: 'FPOs', path: '/admin/fpos', icon: Layers },
+    { label: 'Market Prices', path: '/admin/market-prices', icon: TrendingUp },
+    { label: 'Advisories', path: '/admin/recommendations', icon: Sparkles },
+    { label: 'Transactions', path: '/admin/transactions', icon: ReceiptText },
+    { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+  ],
+  [ROLES.BUYER]: [
+    { label: 'Dashboard', path: '/buyer/dashboard', icon: LayoutDashboard },
+    { label: 'My Requirements', path: '/buyer/requirements', icon: ShoppingBag },
+    { label: 'Incoming Requests', path: '/buyer/requests', icon: Inbox, badge: 'DEMO' },
+    { label: 'My Transactions', path: '/buyer/transactions', icon: ReceiptText },
+    { label: 'Company Profile', path: '/buyer/profile', icon: User },
+  ],
+  [ROLES.FPO]: [
+    { label: 'Dashboard', path: '/fpo/dashboard', icon: LayoutDashboard },
+    { label: 'Member Farmers', path: '/fpo/farmers', icon: Users },
+    { label: 'Buyer Demand', path: '/fpo/demand', icon: ShoppingBag },
+    { label: 'Bundle Builder', path: '/fpo/bundle', icon: Layers },
+    { label: 'Transactions', path: '/fpo/transactions', icon: ReceiptText },
+    { label: 'FPO Profile', path: '/fpo/profile', icon: User },
+  ],
+};
