@@ -23,6 +23,28 @@ export class AuthService {
     });
   }
 
+  private formatUser(user: any) {
+    const name =
+      user.buyer?.companyName ||
+      user.buyer?.contactName ||
+      user.fpo?.name ||
+      user.farmerProfile?.fullName ||
+      (user.email ? user.email.split('@')[0] : user.phone) ||
+      'User';
+
+    return {
+      id: user.id,
+      phone: user.phone,
+      email: user.email,
+      name,
+      role: user.role,
+      preferredLang: user.preferredLang,
+      buyer: user.buyer,
+      fpo: user.fpo,
+      farmerProfile: user.farmerProfile,
+    };
+  }
+
   async register(data: {
     phone: string;
     email?: string;
@@ -73,16 +95,7 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(jwtPayload);
 
     return {
-      user: {
-        id: user.id,
-        phone: user.phone,
-        email: user.email,
-        role: user.role,
-        preferredLang: user.preferredLang,
-        buyer: user.buyer,
-        fpo: user.fpo,
-        farmerProfile: user.farmerProfile,
-      },
+      user: this.formatUser(user),
       accessToken,
       refreshToken,
     };
@@ -118,16 +131,7 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(jwtPayload);
 
     return {
-      user: {
-        id: user.id,
-        phone: user.phone,
-        email: user.email,
-        role: user.role,
-        preferredLang: user.preferredLang,
-        buyer: user.buyer,
-        fpo: user.fpo,
-        farmerProfile: user.farmerProfile,
-      },
+      user: this.formatUser(user),
       accessToken,
       refreshToken,
     };
@@ -153,16 +157,7 @@ export class AuthService {
       const newRefreshToken = this.generateRefreshToken(jwtPayload);
 
       return {
-        user: {
-          id: user.id,
-          phone: user.phone,
-          email: user.email,
-          role: user.role,
-          preferredLang: user.preferredLang,
-          buyer: user.buyer,
-          fpo: user.fpo,
-          farmerProfile: user.farmerProfile,
-        },
+        user: this.formatUser(user),
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
       };
@@ -176,16 +171,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundError('User');
     }
-    return {
-      id: user.id,
-      phone: user.phone,
-      email: user.email,
-      role: user.role,
-      preferredLang: user.preferredLang,
-      buyer: user.buyer,
-      fpo: user.fpo,
-      farmerProfile: user.farmerProfile,
-    };
+    return this.formatUser(user);
   }
 }
 

@@ -242,6 +242,18 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { phone: '9999999991' },
+    update: {},
+    create: {
+      phone: '9999999991',
+      email: 'admin@kisansetu.gov.in',
+      passwordHash,
+      role: Role.ADMIN,
+      preferredLang: Language.ENGLISH,
+    },
+  });
+
   const evaluatorUser = await prisma.user.upsert({
     where: { phone: '9999999998' },
     update: {},
@@ -253,11 +265,24 @@ async function main() {
       preferredLang: Language.MARATHI,
     },
   });
+
+  await prisma.user.upsert({
+    where: { phone: '9999999992' },
+    update: {},
+    create: {
+      phone: '9999999992',
+      email: 'evaluator@niti.gov.in',
+      passwordHash,
+      role: Role.GOVERNMENT_EVALUATOR,
+      preferredLang: Language.MARATHI,
+    },
+  });
   console.log('✅ Admin & Evaluator accounts created');
 
   // 7. Buyers & Requirements
   const buyersData = [
     { name: 'MahaAgro Procurement Ltd', phone: '9820011111', email: 'procurement@mahaagro.com', type: 'Processor' },
+    { name: 'Sahyadri Agri Processors Ltd', phone: '9820099999', email: 'buyer@sahyadri.com', type: 'Processor' },
     { name: 'Sahyadri Agro Exports', phone: '9820022222', email: 'trades@sahyadriageo.com', type: 'Exporter' },
     { name: 'Pawan Food Processing', phone: '9820033333', email: 'buyer@pawanfoods.com', type: 'Food Brand' },
     { name: 'Kisan Mart Retail', phone: '9820044444', email: 'purchase@kisanmart.com', type: 'Retail Chain' },
@@ -318,8 +343,8 @@ async function main() {
 
   // 8. FPOs
   const fposData = [
-    { name: 'Godavari Valley Farmer Producer Co', phone: '9830011111', reg: 'FPO-MH-NSK-2023-01', district: 'Nashik' },
-    { name: 'Shivaji Maharaj Krishi FPO', phone: '9830022222', reg: 'FPO-MH-PUN-2022-04', district: 'Pune' },
+    { name: 'Godavari Valley Farmer Producer Co', phone: '9830011111', email: 'fpo@godavari.org', reg: 'FPO-MH-NSK-2023-01', district: 'Nashik' },
+    { name: 'Shivaji Maharaj Krishi FPO', phone: '9830022222', email: '9830022222@fpo.in', reg: 'FPO-MH-PUN-2022-04', district: 'Pune' },
   ];
 
   const fpos: any[] = [];
@@ -329,11 +354,16 @@ async function main() {
       user = await prisma.user.create({
         data: {
           phone: f.phone,
-          email: `${f.phone}@fpo.in`,
+          email: f.email || `${f.phone}@fpo.in`,
           passwordHash,
           role: Role.FPO,
           preferredLang: Language.MARATHI,
         },
+      });
+    } else if (f.email && user.email !== f.email) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { email: f.email },
       });
     }
 

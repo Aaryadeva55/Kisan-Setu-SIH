@@ -10,9 +10,9 @@ export function useAuth() {
 
   const login = async (email, password) => {
     try {
-      const data = await authApi.login({ email, password });
+      const data = await authApi.login({ login: email, email, password });
       setSession(data.user, data.accessToken);
-      toast.success(`Welcome back, ${data.user.name}`);
+      toast.success(`Welcome back, ${data.user.name || data.user.email || 'User'}`);
       const homeRoute = ROLE_HOME_ROUTES[data.user.role] || '/buyer/dashboard';
       navigate(homeRoute);
       return data.user;
