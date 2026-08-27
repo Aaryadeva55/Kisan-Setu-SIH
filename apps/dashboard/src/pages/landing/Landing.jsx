@@ -14,11 +14,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { formatCurrency } from '../../lib/utils';
-import { useAdminOverview } from '../../hooks/useAdminOverview';
 
 export function Landing() {
-  const { data } = useAdminOverview();
-  const metrics = data?.metrics || {
+  const metrics = {
     totalFarmersReached: 1850,
     activeSellIntents: 16,
     estimatedGmvClosed: 3450000,

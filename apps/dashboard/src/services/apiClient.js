@@ -74,8 +74,13 @@ async function request(path, { method = 'GET', body, headers = {}, retry = true 
           return request(path, { method, body, headers, retry: false });
         } else {
           useAuthStore.getState().clear();
-          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+          const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+          const isProtectedRoute =
+            currentPath.startsWith('/buyer') ||
+            currentPath.startsWith('/fpo') ||
+            currentPath.startsWith('/admin');
+          if (isProtectedRoute && !currentPath.startsWith('/login')) {
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
           }
           throw new ApiError('UNAUTHORIZED', 'Session expired. Please log in again.', null, 401);
         }
