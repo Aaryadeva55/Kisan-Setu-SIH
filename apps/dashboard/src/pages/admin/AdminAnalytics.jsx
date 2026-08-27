@@ -12,8 +12,8 @@ export function AdminAnalytics() {
   const [dateRange, setDateRange] = useState('30d');
   const { data, isLoading } = useAdminAnalytics({ dateRange });
 
-  const gmvTrends = data?.gmvTrends || [];
-  const cropBreakdown = data?.cropBreakdown || [];
+  const gmvTrends = Array.isArray(data?.gmvTrends) ? data.gmvTrends : [];
+  const cropBreakdown = Array.isArray(data?.cropBreakdown) ? data.cropBreakdown : [];
 
   const handleExportPDF = () => {
     toast.success('Agricultural Impact & Adoption Dossier (PDF) downloaded');

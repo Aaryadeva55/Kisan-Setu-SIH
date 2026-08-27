@@ -8,11 +8,16 @@ import {
 } from 'recharts';
 
 export function DistrictAdoptionChart({ data = [] }) {
+  const chartData = Array.isArray(data) ? data : [];
+  if (chartData.length === 0) {
+    return <div className="h-64 flex items-center justify-center text-sm text-muted-foreground">No adoption data available</div>;
+  }
+
   return (
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={data}
+          data={chartData}
           layout="vertical"
           margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
         >

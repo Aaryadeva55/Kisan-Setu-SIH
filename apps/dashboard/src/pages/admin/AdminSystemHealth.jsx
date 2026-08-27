@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 export function AdminSystemHealth() {
   const { data, isLoading, refetch, isRefetching } = useSystemHealth();
 
-  const queues = data?.queues || [];
+  const queues = Array.isArray(data?.queues) ? data.queues : [];
 
   const handleRetrigger = (jobType) => {
     toast.success(`Job queue [${jobType}] re-triggered successfully`);
