@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: kisan-setu-api
+    env: docker
+    dockerfilePath: apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+      - key: CORS_ALLOWED_ORIGIN
+        value: "http://localhost:3000,http://localhost:5173"
+      - key: DEMO_MODE
+        value: "true"
+      - key: WHATSAPP_VERIFY_TOKEN
+        value: kisan_setu_webhook_verify_token_2026
