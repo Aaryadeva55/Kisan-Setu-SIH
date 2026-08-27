@@ -62,7 +62,8 @@ async function request(path, { method = 'GET', body, headers = {}, retry = true 
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    if (res.status === 401 && retry) {
+    const isAuthRoute = path.includes('/auth/login') || path.includes('/auth/register') || path.includes('/auth/refresh');
+    if (res.status === 401 && retry && !isAuthRoute) {
       if (!isRefreshing) {
         isRefreshing = true;
         const newToken = await tryRefresh();

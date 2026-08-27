@@ -1,7 +1,7 @@
 export const SEED_USERS = {
   admin: {
     id: 'usr_admin_01',
-    email: 'admin@kisansetu.gov.in',
+    email: 'admin@kisansetu.in',
     name: 'Dr. Rajesh Patil',
     role: 'ADMIN',
     orgName: 'Department of Agriculture, Maharashtra',
@@ -9,7 +9,7 @@ export const SEED_USERS = {
   },
   evaluator: {
     id: 'usr_eval_01',
-    email: 'evaluator@niti.gov.in',
+    email: 'evaluator@maharashtra.gov.in',
     name: 'Sunil Deshmukh',
     role: 'GOVERNMENT_EVALUATOR',
     orgName: 'NITI Aayog Agri-Advisory Cell',
@@ -17,19 +17,19 @@ export const SEED_USERS = {
   },
   buyer: {
     id: 'usr_buyer_01',
-    email: 'buyer@sahyadri.com',
+    email: 'procurement@mahaagro.com',
     name: 'Vikas Shinde',
     role: 'BUYER',
-    orgName: 'Sahyadri Agri Processors Ltd',
+    orgName: 'MahaAgro Procurement Ltd',
     district: 'Nashik',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&auto=format&fit=crop&q=80',
   },
   fpo: {
     id: 'usr_fpo_01',
-    email: 'fpo@godavari.org',
+    email: '9830011111@fpo.in',
     name: 'Anil Jadhav',
     role: 'FPO',
-    orgName: 'Godavari Farmer Producer Co.',
+    orgName: 'Godavari Valley FPO',
     district: 'Nashik',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
   },

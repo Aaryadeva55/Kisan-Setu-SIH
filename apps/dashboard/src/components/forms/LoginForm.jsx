@@ -19,7 +19,7 @@ export function LoginForm({ onSubmit, loading = false, error }) {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'buyer@sahyadri.com',
+      email: 'procurement@mahaagro.com',
       password: 'password123',
     },
   });
@@ -46,7 +46,7 @@ export function LoginForm({ onSubmit, loading = false, error }) {
             onClick={() => setDemoUser('buyer')}
             className="rounded-lg border border-agri-200 bg-white px-2 py-1.5 text-[11px] font-medium text-agri-900 hover:bg-agri-100/60 transition-colors shadow-2xs text-center"
           >
-            🛒 Buyer (Sahyadri)
+            🛒 Buyer (MahaAgro)
           </button>
           <button
             type="button"
@@ -67,7 +67,7 @@ export function LoginForm({ onSubmit, loading = false, error }) {
             onClick={() => setDemoUser('evaluator')}
             className="rounded-lg border border-agri-200 bg-white px-2 py-1.5 text-[11px] font-medium text-agri-900 hover:bg-agri-100/60 transition-colors shadow-2xs text-center"
           >
-            📊 Evaluator (NITI)
+            📊 Evaluator (Govt)
           </button>
         </div>
       </div>
