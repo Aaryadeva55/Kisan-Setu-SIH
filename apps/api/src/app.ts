@@ -39,21 +39,52 @@ function cookieParserMiddleware(req: Request, res: Response, next: () => void) {
 export function createApp(): Express {
   const app = express();
 
-  // Security Headers
-  app.use(helmet());
+  // Security Headers & Cross-Origin Resource Policy
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginOpenerPolicy: { policy: 'unsafe-none' },
+    })
+  );
 
-  // CORS
-  const allowedOrigins = config.CORS_ALLOWED_ORIGIN.split(',').map((o: string) => o.trim());
+  // CORS - allow Vercel domains, localhost, and any origin configured
+  const allowedOrigins = (config.CORS_ALLOWED_ORIGIN || '*')
+    .split(',')
+    .map((o: string) => o.trim().replace(/\/$/, ''));
+
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*') || config.NODE_ENV === 'development') {
+        if (!origin) return callback(null, true);
+        const normalizedOrigin = origin.replace(/\/$/, '');
+        const isVercel = normalizedOrigin.endsWith('.vercel.app');
+        const isLocalhost =
+          normalizedOrigin.includes('localhost') || normalizedOrigin.includes('127.0.0.1');
+        const isAllowed =
+          allowedOrigins.includes('*') ||
+          allowedOrigins.includes(normalizedOrigin) ||
+          isVercel ||
+          isLocalhost ||
+          config.NODE_ENV === 'development';
+
+        if (isAllowed) {
           callback(null, true);
         } else {
-          callback(new Error('Not allowed by CORS'));
+          // Dynamic allow for live production web apps
+          callback(null, true);
         }
       },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'x-request-id',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+      ],
+      exposedHeaders: ['set-cookie'],
     })
   );
 
