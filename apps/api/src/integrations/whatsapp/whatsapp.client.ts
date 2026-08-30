@@ -10,22 +10,31 @@ export interface WhatsAppMessagePayload {
 }
 
 export class WhatsAppClient {
+  get isDemoMode(): boolean {
+    const raw = process.env.DEMO_MODE ?? config.DEMO_MODE;
+    if (typeof raw === 'string') {
+      const lower = raw.trim().toLowerCase();
+      return lower === 'true' || lower === '1' || lower === 'yes';
+    }
+    return Boolean(raw);
+  }
+
   get apiUrl(): string {
-    const phoneId = config.WHATSAPP_PHONE_NUMBER_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '1293140460550652';
+    const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || config.WHATSAPP_PHONE_NUMBER_ID || '1293140460550652';
     return `https://graph.facebook.com/v19.0/${phoneId}/messages`;
   }
 
   get token(): string {
-    return config.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || '';
+    return process.env.WHATSAPP_ACCESS_TOKEN || config.WHATSAPP_ACCESS_TOKEN || '';
   }
 
   get appSecret(): string {
-    return config.WHATSAPP_APP_SECRET || process.env.WHATSAPP_APP_SECRET || '';
+    return process.env.WHATSAPP_APP_SECRET || config.WHATSAPP_APP_SECRET || '';
   }
 
   verifyWebhookSignature(signatureHeader: string | undefined, rawBody: string | Buffer): boolean {
     if (!signatureHeader) return false;
-    if (config.DEMO_MODE || config.NODE_ENV === 'test') return true;
+    if (this.isDemoMode || config.NODE_ENV === 'test') return true;
 
     try {
       const elements = signatureHeader.split('=');
@@ -41,10 +50,14 @@ export class WhatsAppClient {
   }
 
   async sendTextMessage(to: string, body: string): Promise<boolean> {
-    logger.info({ to, bodyLength: body.length }, 'Sending WhatsApp text message');
+    const isDemo = this.isDemoMode;
+    const token = this.token;
 
-    if (config.DEMO_MODE || this.token === 'replace_me' || this.token === 'demo_access_token') {
-      logger.info({ to, body }, 'DEMO_MODE: Simulated WhatsApp send success');
+    console.log(`📤 [WhatsApp Client] Sending WhatsApp message to: ${to} (isDemoMode: ${isDemo}, tokenConfigured: ${!!token && token !== 'demo_access_token'})`);
+
+    if (isDemo || token === 'replace_me' || token === 'demo_access_token' || !token) {
+      console.log(`⚠️ [WhatsApp Client] Simulated send (Reason: ${isDemo ? 'DEMO_MODE=true' : 'Missing/Demo Access Token in Render Environment'})`);
+      logger.info({ to, body, isDemo }, 'DEMO_MODE: Simulated WhatsApp send success');
       return true;
     }
 

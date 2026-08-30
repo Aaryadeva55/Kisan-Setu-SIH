@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+const booleanSchema = (defaultValue = false) =>
+  z.preprocess((val) => {
+    if (val === undefined || val === null || val === '') return defaultValue;
+    if (typeof val === 'boolean') return val;
+    if (typeof val === 'string') {
+      const lower = val.trim().toLowerCase();
+      if (lower === 'false' || lower === '0' || lower === 'no') return false;
+      if (lower === 'true' || lower === '1' || lower === 'yes') return true;
+    }
+    return Boolean(val);
+  }, z.boolean());
+
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -11,7 +23,7 @@ export const envSchema = z.object({
   JWT_ACCESS_EXPIRY: z.string().default('15m'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
 
-  WHATSAPP_PHONE_NUMBER_ID: z.string().default('demo_phone_id'),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().default('1293140460550652'),
   WHATSAPP_ACCESS_TOKEN: z.string().default('demo_access_token'),
   WHATSAPP_APP_SECRET: z.string().default('demo_app_secret'),
   WHATSAPP_VERIFY_TOKEN: z.string().default('kisan_setu_webhook_verify_token_2026'),
@@ -27,8 +39,8 @@ export const envSchema = z.object({
   MANDI_API_BASE_URL: z.string().default('https://api.data.gov.in/resource/xxxx'),
 
   CORS_ALLOWED_ORIGIN: z.string().default('http://localhost:5173,http://localhost:3000'),
-  DEMO_MODE: z.coerce.boolean().default(true),
-  SEED_DEMO_DATA: z.coerce.boolean().default(true),
+  DEMO_MODE: booleanSchema(false),
+  SEED_DEMO_DATA: booleanSchema(false),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
