@@ -10,14 +10,17 @@ export interface WhatsAppMessagePayload {
 }
 
 export class WhatsAppClient {
-  private apiUrl: string;
-  private token: string;
-  private appSecret: string;
+  get apiUrl(): string {
+    const phoneId = config.WHATSAPP_PHONE_NUMBER_ID || process.env.WHATSAPP_PHONE_NUMBER_ID || '1293140460550652';
+    return `https://graph.facebook.com/v19.0/${phoneId}/messages`;
+  }
 
-  constructor() {
-    this.apiUrl = `https://graph.facebook.com/v19.0/${config.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-    this.token = config.WHATSAPP_ACCESS_TOKEN;
-    this.appSecret = config.WHATSAPP_APP_SECRET;
+  get token(): string {
+    return config.WHATSAPP_ACCESS_TOKEN || process.env.WHATSAPP_ACCESS_TOKEN || '';
+  }
+
+  get appSecret(): string {
+    return config.WHATSAPP_APP_SECRET || process.env.WHATSAPP_APP_SECRET || '';
   }
 
   verifyWebhookSignature(signatureHeader: string | undefined, rawBody: string | Buffer): boolean {
@@ -46,6 +49,9 @@ export class WhatsAppClient {
     }
 
     try {
+      // Clean phone number (strip leading + or non-numeric characters)
+      const cleanTo = to.replace(/[^0-9]/g, '');
+
       const res = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
@@ -55,18 +61,20 @@ export class WhatsAppClient {
         body: JSON.stringify({
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
-          to,
+          to: cleanTo,
           type: 'text',
           text: { body },
         }),
       });
 
+      const responseBody = await res.text();
+
       if (!res.ok) {
-        const errorText = await res.text();
-        logger.error({ status: res.status, errorText }, 'WhatsApp Cloud API send failed');
+        logger.error({ status: res.status, responseBody }, 'WhatsApp Cloud API send failed');
         return false;
       }
 
+      logger.info({ to: cleanTo, status: res.status }, 'WhatsApp text message successfully sent');
       return true;
     } catch (err) {
       logger.error({ err }, 'WhatsApp Cloud API network exception');
