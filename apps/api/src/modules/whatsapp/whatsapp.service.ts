@@ -11,61 +11,75 @@ export class WhatsAppService {
     externalMsgId?: string;
   }) {
     const { fromPhone, messageText, externalMsgId } = payload;
+    console.log(`🌾 [WhatsApp Service] Handling inbound message from ${fromPhone}: "${messageText}"`);
 
-    // Idempotency check: if externalMsgId seen, short-circuit
-    if (externalMsgId) {
-      const existing = await prisma.message.findUnique({
-        where: { externalMsgId },
-      });
-      if (existing) {
-        logger.info({ externalMsgId }, 'Duplicate WhatsApp message received, short-circuiting');
-        return { status: 'DUPLICATE_IGNORED' };
+    let user: any = null;
+    let conversation: any = null;
+
+    try {
+      // Idempotency check: if externalMsgId seen, short-circuit
+      if (externalMsgId) {
+        const existing = await prisma.message.findUnique({
+          where: { externalMsgId },
+        });
+        if (existing) {
+          logger.info({ externalMsgId }, 'Duplicate WhatsApp message received, short-circuiting');
+          return { status: 'DUPLICATE_IGNORED' };
+        }
       }
-    }
 
-    // Find or create User by phone
-    let user = await prisma.user.findUnique({
-      where: { phone: fromPhone },
-      include: { farmerProfile: true },
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          phone: fromPhone,
-          role: Role.FARMER,
-          preferredLang: Language.MARATHI,
-        },
+      // Find or create User by phone
+      user = await prisma.user.findUnique({
+        where: { phone: fromPhone },
         include: { farmerProfile: true },
       });
-    }
 
-    // Find or create active Conversation
-    let conversation = await prisma.conversation.findFirst({
-      where: { userId: user.id },
-      orderBy: { updatedAt: 'desc' },
-    });
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            phone: fromPhone,
+            role: Role.FARMER,
+            preferredLang: Language.MARATHI,
+          },
+          include: { farmerProfile: true },
+        });
+      }
 
-    if (!conversation) {
-      conversation = await prisma.conversation.create({
+      // Find or create active Conversation
+      conversation = await prisma.conversation.findFirst({
+        where: { userId: user.id },
+        orderBy: { updatedAt: 'desc' },
+      });
+
+      if (!conversation) {
+        conversation = await prisma.conversation.create({
+          data: {
+            userId: user.id,
+            channel: 'WHATSAPP',
+            state: 'LANGUAGE_SELECTION',
+            context: {},
+          },
+        });
+      }
+
+      // Record inbound message
+      await prisma.message.create({
         data: {
-          userId: user.id,
-          channel: 'WHATSAPP',
-          state: 'LANGUAGE_SELECTION',
-          context: {},
+          conversationId: conversation.id,
+          direction: 'INBOUND',
+          externalMsgId: externalMsgId || null,
+          content: messageText,
         },
       });
+    } catch (dbErr) {
+      console.warn('⚠️ [WhatsApp Service] Database operation warning (proceeding in memory mode):', dbErr);
+      if (!user) {
+        user = { id: 'temp_user', phone: fromPhone, preferredLang: Language.MARATHI };
+      }
+      if (!conversation) {
+        conversation = { id: 'temp_conv', state: 'LANGUAGE_SELECTION', context: {} };
+      }
     }
-
-    // Record inbound message
-    await prisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        direction: 'INBOUND',
-        externalMsgId: externalMsgId || null,
-        content: messageText,
-      },
-    });
 
     // Execute state machine step
     const { nextState, responseText, updatedContext } = await processConversationStep(
@@ -75,29 +89,37 @@ export class WhatsAppService {
       messageText
     );
 
-    // Update conversation state in DB
-    await prisma.conversation.update({
-      where: { id: conversation.id },
-      data: {
-        state: nextState,
-        context: updatedContext || conversation.context || {},
-      },
-    });
+    try {
+      if (conversation.id !== 'temp_conv') {
+        // Update conversation state in DB
+        await prisma.conversation.update({
+          where: { id: conversation.id },
+          data: {
+            state: nextState,
+            context: updatedContext || conversation.context || {},
+          },
+        });
 
-    // Record outbound message in DB
-    await prisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        direction: 'OUTBOUND',
-        content: responseText,
-      },
-    });
+        // Record outbound message in DB
+        await prisma.message.create({
+          data: {
+            conversationId: conversation.id,
+            direction: 'OUTBOUND',
+            content: responseText,
+          },
+        });
+      }
+    } catch (dbErr) {
+      console.warn('⚠️ [WhatsApp Service] Could not update conversation state in DB:', dbErr);
+    }
+
+    console.log(`📤 [WhatsApp Service] Sending WhatsApp reply to ${fromPhone}:\n${responseText}`);
 
     // Send WhatsApp reply
-    await whatsappClient.sendTextMessage(fromPhone, responseText);
+    const sendOk = await whatsappClient.sendTextMessage(fromPhone, responseText);
 
     return {
-      status: 'PROCESSED',
+      status: sendOk ? 'PROCESSED' : 'SEND_FAILED',
       replySent: responseText,
       nextState,
     };

@@ -94,6 +94,17 @@ export function createApp(): Express {
   app.use(cookieParserMiddleware);
   app.use(requestIdMiddleware);
 
+  // Global Request Logging
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      // Don't clutter logs with periodic /health checks unless non-200
+      if (req.path === '/health' && res.statusCode === 200) return;
+      console.log(`📡 [${req.method}] ${req.originalUrl || req.url} -> ${res.statusCode} (${Date.now() - start}ms)`);
+    });
+    next();
+  });
+
   // Healthcheck
   app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({

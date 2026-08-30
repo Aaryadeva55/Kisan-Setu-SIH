@@ -19,12 +19,17 @@ export class WhatsAppController {
 
   async handleWebhook(req: Request, res: Response, _next: NextFunction) {
     try {
-      const _signature = req.headers['x-hub-signature-256'] as string | undefined;
+      console.log('📥 [WhatsApp Webhook] Incoming event body:', JSON.stringify(req.body, null, 2));
 
       // Meta payload parsing
       const entry = req.body?.entry?.[0];
       const change = entry?.changes?.[0]?.value;
       const message = change?.messages?.[0];
+      const statuses = change?.statuses?.[0];
+
+      if (statuses) {
+        console.log(`ℹ️ [WhatsApp Webhook] Status update: ${statuses.status} for message: ${statuses.id}`);
+      }
 
       if (message) {
         const fromPhone = message.from;
@@ -37,22 +42,26 @@ export class WhatsAppController {
           messageText =
             message.interactive?.button_reply?.id ||
             message.interactive?.list_reply?.id ||
+            message.interactive?.button_reply?.title ||
             '';
         }
 
+        console.log(`💬 [WhatsApp Webhook] Message from ${fromPhone} (type: ${message.type}): "${messageText}"`);
+
         if (fromPhone && messageText) {
-          // Process message asynchronously/synchronously
-          await whatsappService.handleInboundMessage({
+          const result = await whatsappService.handleInboundMessage({
             fromPhone,
             messageText,
             externalMsgId,
           });
+          console.log('✅ [WhatsApp Webhook] Message processed successfully:', result);
         }
       }
 
       // Meta expects an immediate 200 OK
       return res.status(200).json({ status: 'received' });
-    } catch (err) {
+    } catch (err: any) {
+      console.error('❌ [WhatsApp Webhook] Processing error:', err);
       logger.error({ err }, 'WhatsApp webhook processing error');
       // Return 200 to prevent repeated Meta webhook retries
       return res.status(200).json({ status: 'error_logged' });
