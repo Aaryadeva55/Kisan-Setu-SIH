@@ -23,10 +23,63 @@ export async function processConversationStep(
   const lower = input.toLowerCase();
 
   // Global Keyword Short-Circuits
-  if (lower === 'help' || lower === 'मदत') {
+  if (lower === 'help' || lower === 'मदत' || lower === 'मदद') {
     return {
       nextState: currentState,
-      responseText: t('status_help', lang) + '\n\n' + t('main_menu', lang),
+      responseText:
+        t('status_help', lang) +
+        '\n\n' +
+        t('main_menu', lang) +
+        '\n\n🌐 भाषा बदलण्यासाठी *lang* पाठवा (Type *lang* to change language).',
+    };
+  }
+
+  // Language Change Shortcuts
+  if (
+    lower === 'lang' ||
+    lower === 'language' ||
+    lower === 'भाषा' ||
+    lower === 'bhasha'
+  ) {
+    return {
+      nextState: 'LANGUAGE_SELECTION',
+      responseText:
+        '🌐 कृपया आपली भाषा निवडा / कृपया अपनी भाषा चुनें / Please choose your language:\n1. मराठी (Marathi)\n2. हिंदी (Hindi)\n3. English',
+    };
+  }
+
+  // Direct Language Switches
+  if (lower === 'english' || lower === 'eng') {
+    await prisma.user.update({ where: { id: user.id }, data: { preferredLang: Language.ENGLISH } });
+    return {
+      nextState: 'MAIN_MENU',
+      responseText: '🌐 Language updated to *English*.\n\n' + t('main_menu', Language.ENGLISH),
+      updatedContext: { ...context, lang: Language.ENGLISH },
+    };
+  }
+
+  if (lower === 'hindi' || lower === 'हिंदी' || lower === 'हिन्दी') {
+    await prisma.user.update({ where: { id: user.id }, data: { preferredLang: Language.HINDI } });
+    return {
+      nextState: 'MAIN_MENU',
+      responseText: '🌐 भाषा बदलकर *हिंदी* कर दी गई है।\n\n' + t('main_menu', Language.HINDI),
+      updatedContext: { ...context, lang: Language.HINDI },
+    };
+  }
+
+  if (lower === 'marathi' || lower === 'मराठी') {
+    await prisma.user.update({ where: { id: user.id }, data: { preferredLang: Language.MARATHI } });
+    return {
+      nextState: 'MAIN_MENU',
+      responseText: '🌐 भाषा *मराठी* निवडली आहे.\n\n' + t('main_menu', Language.MARATHI),
+      updatedContext: { ...context, lang: Language.MARATHI },
+    };
+  }
+
+  if (lower === 'reset' || lower === 'start' || lower === 'menu' || lower === 'मेनू') {
+    return {
+      nextState: 'MAIN_MENU',
+      responseText: t('main_menu', lang) + '\n\n🌐 Type *lang* to change language.',
     };
   }
 
